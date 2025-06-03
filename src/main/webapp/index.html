@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="Sistema de Login PregO1" />
+    <meta name="author" content="" />
+
+    <title>ExamenRecuperacion - Login</title>
+
+    <!-- Custom fonts for this template-->
+    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css" />
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet" />
+
+    <!-- Custom styles for this template-->
+    <link href="css/sb-admin-2.min.css" rel="stylesheet" />
+
+</head>
+
+<body class="bg-gradient-primary">
+
+    <div class="container">
+
+        <!-- Outer Row -->
+        <div class="row justify-content-center">
+
+            <div class="col-xl-10 col-lg-12 col-md-9">
+
+                <div class="card o-hidden border-0 shadow-lg my-5">
+                    <div class="card-body p-0">
+                        <!-- Nested Row within Card Body -->
+                        <div class="row">
+                            <div class="col-lg-6 d-none d-lg-block bg-login-image"></div>
+                            <div class="col-lg-6">
+                                <div class="p-5">
+                                    <div class="text-center">
+                                        <h1 class="h4 text-gray-900 mb-4">Bienvenido al Sistema</h1>
+                                    </div>
+                                    <form class="user" id="loginForm">
+                                        <div class="form-group">
+                                            <input type="text" class="form-control form-control-user" 
+                                                id="dni" name="ndniEstdWeb" 
+                                                placeholder="Ingrese su DNI" required />
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="password" class="form-control form-control-user" 
+                                                id="password" name="passEstd" 
+                                                placeholder="Contraseña" required />
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="custom-control custom-checkbox small">
+                                                <input type="checkbox" class="custom-control-input" id="rememberMe" />
+                                                <label class="custom-control-label" for="rememberMe">Recordarme</label>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary btn-user btn-block">
+                                            Iniciar Sesión
+                                        </button>
+                                        <hr />
+                                        <div id="message" class="mt-3 text-center"></div>
+                                    </form>
+                                    <hr />
+                                    <div class="text-center">
+                                        <a class="small" href="#" data-toggle="modal" data-target="#cambioClaveModal">
+                                            Cambiar Contraseña
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Modal para cambio de contraseña -->
+    <div class="modal fade" id="cambioClaveModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Cambiar Contraseña</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="cambioClaveForm">
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="dniCambio" 
+                                placeholder="DNI" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="password" class="form-control" id="claveActual" 
+                                placeholder="Contraseña Actual" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="password" class="form-control" id="nuevaClave" 
+                                placeholder="Nueva Contraseña" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="password" class="form-control" id="confirmarClave" 
+                                placeholder="Confirmar Nueva Contraseña" required>
+                        </div>
+                        <div id="messageCambio" class="mb-3"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-primary" onclick="cambiarClave()">Cambiar Contraseña</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="js/sb-admin-2.min.js"></script>
+
+    <script>
+     $(document).ready(function() {
+    $('#loginForm').on('submit', function(e) {
+        e.preventDefault();
+        login();
+    });
+
+    if(localStorage.getItem('rememberMe') === 'true') {
+        $('#dni').val(localStorage.getItem('dni'));
+        $('#rememberMe').prop('checked', true);
+    }
+});
+
+async function login() {
+    const dni = $('#dni').val().trim();
+    const password = $('#password').val().trim();
+    const rememberMe = $('#rememberMe').is(':checked');
+    const messageDiv = $('#message');
+    
+    messageDiv.text(''); // Limpia mensaje
+
+    if (!dni || !password) {
+        messageDiv.text('Por favor ingrese DNI y contraseña');
+        return;
+    }
+
+    try {
+        const response = await fetch('login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+           body: new URLSearchParams({ ndniMedi: dni, passMedi: password })
+
+        });
+
+        if (!response.ok) {
+            messageDiv.text('Error en la conexión con el servidor');
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+            if (rememberMe) {
+                localStorage.setItem('dni', dni);
+                localStorage.setItem('rememberMe', 'true');
+            } else {
+                localStorage.removeItem('dni');
+                localStorage.setItem('rememberMe', 'false');
+            }
+
+            window.location.href = data.redirect || 'principal.html';
+        } else {
+            messageDiv.text(data.message || 'DNI o contraseña incorrectos');
+        }
+    } catch {
+        messageDiv.text('Error al conectar con el servidor');
+    }
+}
+
+
+        async function cambiarClave() {
+            const dni = $('#dniCambio').val().trim();
+            const claveActual = $('#claveActual').val().trim();
+            const nuevaClave = $('#nuevaClave').val().trim();
+            const confirmarClave = $('#confirmarClave').val().trim();
+            const messageDiv = $('#messageCambio');
+            
+            messageDiv.removeClass('text-danger text-success').text('');
+
+            if (!dni || !claveActual || !nuevaClave || !confirmarClave) {
+                messageDiv.addClass('text-danger').text('Todos los campos son requeridos');
+                return;
+            }
+
+            if (nuevaClave !== confirmarClave) {
+                messageDiv.addClass('text-danger').text('Las contraseñas nuevas no coinciden');
+                return;
+            }
+
+            try {
+                messageDiv.addClass('text-info').text('Procesando cambio...');
+                
+                const response = await fetch('cambiar-clave', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        dni: dni,
+                        viejaClave: claveActual,
+                        nuevaClave: nuevaClave
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    messageDiv.addClass('text-success').text(result.message);
+                    setTimeout(() => {
+                        $('#cambioClaveModal').modal('hide');
+                        $('#cambioClaveForm')[0].reset();
+                    }, 1500);
+                } else {
+                    messageDiv.addClass('text-danger').text(result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                messageDiv.addClass('text-danger').text('Error al conectar con el servidor');
+            }
+        }
+    </script>
+
+</body>
+
+</html>
